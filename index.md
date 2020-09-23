@@ -15,8 +15,12 @@ $ yarn add -g @angular-devkit/schematics-cli
 $ schematics schematic --name demo
 ```
 
-## hello world
+
+
+
+## Hellow-World
  创建一个空工程
+ 
 ```
 $ schematics black --name=hello-world
 $ cd hello-world
