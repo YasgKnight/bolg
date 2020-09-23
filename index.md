@@ -1,25 +1,20 @@
-## 关于angular schmetics的学习笔记
+# angular 原理图（Schematic）的学习笔记
 
-You can use the [editor on GitHub](https://github.com/yanqiuming/qiu.github.io/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+### 什么是Collection？
+Collection是一系列的schematic。我们会在工程中collection.json中为每个schematic定义元数据。
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+### 安装
+首先，使用npm或者yarn安装schematics的CLI：
 
-### Markdown
-
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
-
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
+```
+$ npm install -g @angular-devkit/schematics-cli
+$ yarn add -g @angular-devkit/schematics-cli
+```
 ### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
+生成原理图
+```
+schematics schematic --name demo
+```
 
 **Bold** and _Italic_ and `Code` text
 
