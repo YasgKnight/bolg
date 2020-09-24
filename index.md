@@ -106,9 +106,93 @@ declare type Rule =
  (tree: Tree, context: SchematicContext) => 
  Tree | Observable<Tree> | Rule | void;
 ```
+| Rule | 描述 |
+|---|---|
+| `noop()` | 按Tree原样返回输入。 |
+| `chain(rules: Rule[])` | 返回Rule与其他Rules 串联的a  |
+| `forEach(op: FileOperator)` | 返回一个Rule将运算符应用于input的每个文件的Tree。 |
+| `move(root: string)` | 将所有文件从输入移动到子目录 |
+| `merge(other: Tree)` | 将输入Tree与另一个合并Tree |
+| `contentTemplate<T>(options: T)` |将内容模板（请参见“模板”部分）应用于整个模板Tree |
+| `pathTemplate<T>(options: T)` | 将路径模板（请参阅模板部分）应用于整个Tree. |
+| `template<T>(options: T)` | 将路径和内容模板（请参阅“模板”部分）应用于整个Tree. |
+| `filter(predicate: FilePredicate<boolean>)` | 返回Tree包含未通过的文件的输入FilePredicate. |
 
 
+## 模板化 
+某些功能基于文件模板系统，该系统由路径和内容模板组成。
 
+系统在文件中定义的占位符或加载到中的路径上操作，Tree并使用传入Rule模板的值（即template<T>(options: T)），按照以下定义填充这些占位符。
+
+## 路径模板
+| 占位符 | 描述 |
+|---|---|
+| __variable__ | 替换为的值variable |
+| __variable@function__ | 替换为调用结果function(variable)。可以链接到左侧（__variable@function1@function2__ 等）。  |
+
+## 内容模板
+| 占位符 | 描述 |
+|---|---|
+| <%= expression %> | 用给定表达式的调用结果替换。这仅支持直接表达式，不支持结构化（for / if / ...）JavaScript。 |
+| <%- expression %> | 与上面相同，但是插入时结果的值将针对HTML进行转义（即用'<'替换'<'） |
+| <% inline code %> | 将给定的代码插入模板结构中，从而允许插入结构性JavaScript。 |
+| <%# text %> | 插入一个文本 |
+
+## Simple
+一个简单的原理图示例，它使用一个选项来确定其路径来创建“ hello world”文件：
+
+```typescript
+import {Tree} from '@angular-devkit/schematics';
+
+export default function MySchematic(options: any) {
+  return (tree: Tree) => {
+    tree.create(options.path + '/hi', 'Hello world!');
+    return tree;
+  };
+}
+```
+
+此示例中的一些内容：
+
+1.该功能从工具接收选项列表。
+2.它返回一个 Rule，这是从Tree到另一个Tree 的转化。
  
- 
+示意图的简化示例，该示例创建一个包含新类的文件，并使用一个选项来确定其名称：
 
+```typescript
+// files/__name@dasherize__.ts
+
+export class <%= classify(name) %> {
+}
+```
+
+```typescript
+// index.ts
+
+import { strings } from '@angular-devkit/core';
+import {
+  Rule, SchematicContext, SchematicsException, Tree,
+  apply, branchAndMerge, mergeWith, template, url,
+} from '@angular-devkit/schematics';
+import { Schema as ClassOptions } from './schema';
+
+export default function (options: ClassOptions): Rule {
+  return (tree: Tree, context: SchematicContext) => {
+    if (!options.name) {
+      throw new SchematicsException('Option (name) is required.');
+    }
+
+    const templateSource = apply(
+      url('./files'),
+      [
+        template({
+          ...strings,
+          ...options,
+        }),
+      ]
+    );
+
+    return branchAndMerge(mergeWith(templateSource));
+  };
+}
+```
