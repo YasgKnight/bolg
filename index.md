@@ -14,7 +14,10 @@ $ yarn add -g @angular-devkit/schematics-cli
 ```
 $ schematics schematic --name demo
 ```
-
+### angular依赖
+```
+npm i @schematics/angular
+```
 
 
 
